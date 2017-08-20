@@ -1,0 +1,7 @@
+*.pyc
+.project
+.pydevproject
+.DS_Store
+.idea/
+ipc_idss.iml
+static/reports
