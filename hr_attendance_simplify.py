@@ -33,12 +33,21 @@ class hr_attendance(osv.osv):
 	_constraints = [(_altern_si_so, _('Error ! Sign in (resp. Sign out) must follow Sign out (resp. Sign in)'), ['action'])]
 
 	def simplify_per_employee(self, cr, uid, attendance_data, tz, context={}):
+	# behaviour standard:
+	# - kalau hanya satu baris dibiarkan saja (tidak ada simplifikasi)
+	# - kalau 2 baris atau lebih maka dikenakan aturan yang paling pagi adalah sign in 
+	#   dan yang paling sore adalah sign out. semua entri di tengah2nya adalah action 
+	#   (alias di-hide dari tampilan)
 		for attn_date in attendance_data:
 			attendance_data[attn_date] = sorted(attendance_data[attn_date], key=lambda k: k['name'])
 			earliest = 0
 			latest = len(attendance_data[attn_date]) - 1
-		# kalau hanya satu entri ya ngga usah diapa2in
-			if latest <= earliest: continue 
+		# kalau ngga ada ya udah
+			if latest < 0: continue
+		# kalau hanya satu entri, asumsikan pasti sign in
+			if latest == 0: 
+				self.write(cr, uid, [attendance_data[attn_date][0].id], {'action': 'sign_in'})
+				continue 
 		# kalau lebih dari satu entri barulah diproses 
 		# selain yang pertama dan terakhir, nonaktifkan supaya hidden/unsearchable
 			for idx, entry in enumerate(attendance_data[attn_date]):
