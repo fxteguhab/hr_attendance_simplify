@@ -46,7 +46,10 @@ class hr_attendance(osv.osv):
 			if latest < 0: continue
 		# kalau hanya satu entri, asumsikan pasti sign in
 			if latest == 0: 
-				self.write(cr, uid, [attendance_data[attn_date][0].id], {'action': 'sign_in'})
+				self.write(cr, uid, [attendance_data[attn_date][0].id], {
+					'action': 'sign_in', 
+					'simplify_state': 'simplified'
+				})
 				continue 
 		# kalau lebih dari satu entri barulah diproses 
 		# selain yang pertama dan terakhir, nonaktifkan supaya hidden/unsearchable
@@ -69,7 +72,6 @@ class hr_attendance(osv.osv):
 				'simplify_state': 'simplified',
 				'action': 'sign_out',
 				})
-
 
 	def cron_simplify_attendance(self, cr, uid, context={}):
 	# ambil user timezone. user yang dipakai adalah SUPERUSER, so pastikan timezone superuser
